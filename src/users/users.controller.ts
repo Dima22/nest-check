@@ -1,13 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './create-users.dto';
+import { AuthGuard } from './auth.guard';
 
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
     @Get()
-    getAllUsers(): {id: number, name: string, age: number}[] {
+    getAllUsers(){
         return this.usersService.getAllUsers();
     }
 
@@ -17,8 +18,9 @@ export class UsersController {
     }
 
     @Get(':id')
-    getUserByID(@Param('id') id: string): {id: number, name: string, age: number} {
-        return this.usersService.getUserById(Number(id));
+    @UseGuards(AuthGuard)
+    getUserByID(@Param('id', ParseIntPipe) id: number) {
+        return this.usersService.getUserById(id);
     }
 
     @Post()
